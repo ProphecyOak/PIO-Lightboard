@@ -1,8 +1,11 @@
 #include <Arduino.h>
+#include <RTC.h>
 #include "framework/Board.h"
 #include "animation/buffer_animation.h"
 #include "animation/scroll_animation.h"
 #include "resources/gif_access.h"
+#include <NTPClient.h>
+#include <WiFiS3.h>
 
 #define ANIMATION_DEBUG false
 
@@ -13,11 +16,12 @@ int start_year = 1980;
 
 void setup()
 {
-  start_time = millis();
-  Serial.println(start_time);
   Serial.begin(9600);
   while (!Serial)
     ;
+  start_time = millis();
+  RTCTime current_time;
+  Serial.println(RTC.getTime(current_time));
   Serial.print("\n\n");
   mike_board = new Board(10, 4);
   mike_board->setup();
