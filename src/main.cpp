@@ -8,9 +8,13 @@
 
 Board *mike_board;
 Animation *current_animations[10] = {};
+unsigned long start_time;
+int start_year = 1980;
 
 void setup()
 {
+  start_time = millis();
+  Serial.println(start_time);
   Serial.begin(9600);
   while (!Serial)
     ;
