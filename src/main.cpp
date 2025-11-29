@@ -1,11 +1,9 @@
 #include <Arduino.h>
-#include <RTC.h>
 #include "framework/Board.h"
 #include "animation/buffer_animation.h"
 #include "animation/scroll_animation.h"
 #include "resources/gif_access.h"
-#include <NTPClient.h>
-#include <WiFiS3.h>
+#include "resources/network.h"
 
 #define ANIMATION_DEBUG false
 
@@ -20,8 +18,7 @@ void setup()
   while (!Serial)
     ;
   start_time = millis();
-  RTCTime current_time;
-  Serial.println(RTC.getTime(current_time));
+  Serial.println(get_network_time()->getMinutes());
   Serial.print("\n\n");
   mike_board = new Board(10, 4);
   mike_board->setup();
