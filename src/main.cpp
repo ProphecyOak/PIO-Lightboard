@@ -2,6 +2,7 @@
 #include "framework/Board.h"
 #include "animation/primitives/buffer_animation.h"
 #include "animation/modifiers/scroll_animation.h"
+#include "animation/modifiers/offset_animation.h"
 #include "animation/year_animation.h"
 #include "resources/gif_access.h"
 #include "resources/network.h"
@@ -23,8 +24,7 @@ void setup()
     ;
   get_network_time();
   Serial.print("\n\n");
-  // current_animations[0] = new ScrollAnimation(new BufferAnimation("0123456789"));
-  current_animations[1] = new YearAnimation(start_year, reference_time);
+  current_animations[1] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
   //   GIF_Accessor gif_getter = GIF_Accessor();
   //   gif_getter.select_file("PACMAN~1.GIF");
   //   gif_getter.step_gif();

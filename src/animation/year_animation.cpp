@@ -22,7 +22,6 @@ char *buffer = new char[30];
 void YearAnimation::change_year()
 {
 	int year = std::round(last_minute * speed + start_year);
-	Serial.println("Creating transition to: " + String(year));
 	sprintf(buffer, "%04d  %04d", year - 1, year);
 	delete child_animation;
 	child_animation = new ScrollAnimation(BufferAnimation::from_text(buffer), ScrollAnimation::LEFT, -(FONT_WIDTH * 4 + 3));
