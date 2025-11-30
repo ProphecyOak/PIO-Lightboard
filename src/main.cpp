@@ -1,31 +1,33 @@
 #include <Arduino.h>
 #include "framework/Board.h"
-#include "animation/buffer_animation.h"
-#include "animation/scroll_animation.h"
+#include "animation/primitives/buffer_animation.h"
+#include "animation/modifiers/scroll_animation.h"
+#include "animation/year_animation.h"
 #include "resources/gif_access.h"
 #include "resources/network.h"
+#include "framework/memory.h"
 
 #define ANIMATION_DEBUG false
 
 Board *mike_board;
 Animation *current_animations[10] = {};
-unsigned long start_time;
-int start_year = 1980;
+int start_year = 0;
+long reference_time = 1764468720 - (5 * 3600);
 
 void setup()
 {
   Serial.begin(9600);
+  mike_board = new Board(35, 20);
+  mike_board->setup();
   while (!Serial)
     ;
-  start_time = millis();
-  Serial.println(get_network_time()->getMinutes());
+  get_network_time();
   Serial.print("\n\n");
-  mike_board = new Board(10, 4);
-  mike_board->setup();
-  current_animations[0] = new ScrollAnimation(new BufferAnimation("0123456789"));
-  GIF_Accessor gif_getter = GIF_Accessor();
-  gif_getter.select_file("PACMAN~1.GIF");
-  gif_getter.step_gif();
+  // current_animations[0] = new ScrollAnimation(new BufferAnimation("0123456789"));
+  current_animations[1] = new YearAnimation(start_year, reference_time);
+  //   GIF_Accessor gif_getter = GIF_Accessor();
+  //   gif_getter.select_file("PACMAN~1.GIF");
+  //   gif_getter.step_gif();
 }
 
 int frame = 0;

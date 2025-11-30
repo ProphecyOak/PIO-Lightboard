@@ -1,6 +1,6 @@
 #ifndef scroll_animation_h
 #define scroll_animation_h
-#include "animation.h"
+#include "animation/animation.h"
 
 class ScrollAnimation : public Animation
 {
@@ -21,7 +21,9 @@ public:
 	};
 	ScrollAnimation(
 			Animation *child_animation_,
-			ScrollAnimation::DIRECTION direction = LEFT);
+			ScrollAnimation::DIRECTION direction = LEFT,
+			int duration_delta = 0);
+	~ScrollAnimation();
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;
 };

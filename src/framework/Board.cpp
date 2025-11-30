@@ -2,9 +2,10 @@
 #include "Board.h"
 #include "Buffer.h"
 #include "../animation/animation.h"
+#include "../resources/colors.h"
 
 #define LED_PIN 6
-#define LED_SKIP 2
+#define LED_SKIP 0
 #define LED_BRIGHTNESS 20
 
 Board::Board(int width_, int height_)
@@ -21,9 +22,7 @@ Board::Board(int width_, int height_)
 Board::~Board()
 {
 	delete board_buffer;
-	board_buffer = nullptr;
 	delete strip;
-	strip = nullptr;
 }
 
 void Board::setup()
@@ -33,13 +32,9 @@ void Board::setup()
 	strip->show();
 }
 
-bool Board::set_pixel(int x, int y, char *color)
+bool Board::set_pixel(int x, int y, int color_idx)
 {
-	return board_buffer->set_pixel(x, y, 0xFFFFFFFF);
-}
-bool Board::set_pixel(int x, int y, uint32_t color)
-{
-	return board_buffer->set_pixel(x, y, color);
+	return board_buffer->set_pixel(x, y, color_idx);
 }
 
 void Board::print_at(int x, int y, Buffer *other_buffer)
@@ -57,7 +52,7 @@ void Board::reset()
 	{
 		for (int y = 0; y < height; y++)
 		{
-			set_pixel(x, y, 0xFF000000);
+			set_pixel(x, y, 0);
 		}
 	}
 }
@@ -68,10 +63,10 @@ void Board::update()
 	{
 		for (int y = 0; y < height; y++)
 		{
-			int idx = 10 * y + 9 * (y % 2) + x * pow(-1, y);
+			int idx = width * y + (width - 1) * (y % 2) + (width - x - 1) * pow(-1, y);
 			strip->setPixelColor(
 					LED_SKIP + idx,
-					(*board_buffer)(x, y));
+					colors[(*board_buffer)(x, y)]);
 		}
 	}
 	strip->show();

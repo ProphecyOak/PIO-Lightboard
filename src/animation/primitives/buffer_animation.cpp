@@ -1,5 +1,5 @@
 #include "buffer_animation.h"
-#include "../framework/Buffer.h"
+#include "framework/Buffer.h"
 #include <string>
 #include <Arduino.h>
 #include <resources/Font.h>
@@ -10,30 +10,36 @@ BufferAnimation::BufferAnimation(Buffer *buffer, int duration_)
 	anim_buffer = buffer;
 }
 
-BufferAnimation::BufferAnimation(std::string text, int duration_)
+BufferAnimation *BufferAnimation::from_text(char *text, int duration_)
 {
-	int text_length = text.length();
-	Buffer *text_buffer = new Buffer((FONT_WIDTH + 1) * text_length, FONT_HEIGHT);
-	Buffer *character_buffer = new Buffer(FONT_WIDTH, FONT_HEIGHT);
+	int text_length = 0;
 	int i = 0;
-	for (char character : text)
+	while (text[i] != '\0')
 	{
-		character_buffer->from_character(character);
+		text_length++;
+		i++;
+	}
+	Buffer *text_buffer = new Buffer((FONT_WIDTH + 1) * text_length, FONT_HEIGHT);
+	text_buffer->reset();
+
+	Buffer *character_buffer = new Buffer(FONT_WIDTH, FONT_HEIGHT);
+	for (i = 0; i < text_length; i++)
+	{
+		character_buffer->from_character(text[i]);
 		character_buffer->print_to(i * (FONT_WIDTH + 1), 0, text_buffer);
-		i += 1;
 	}
 	delete character_buffer;
 	character_buffer = nullptr;
-	anim_buffer = text_buffer;
-	duration = duration_;
-	set_width(text_length * (FONT_WIDTH + 1) - 1);
-	set_height(FONT_HEIGHT);
+	BufferAnimation *result = new BufferAnimation(text_buffer);
+	result->duration = duration_;
+	result->set_width(text_length * (FONT_WIDTH + 1) - 1);
+	result->set_height(FONT_HEIGHT);
+	return result;
 }
 
 BufferAnimation::~BufferAnimation()
 {
 	delete anim_buffer;
-	anim_buffer = nullptr;
 }
 
 bool BufferAnimation::step()

@@ -1,17 +1,18 @@
 #ifndef animation_h
 #define animation_h
-#include "../framework/Buffer.h"
+#include "framework/Buffer.h"
 
 class Animation
 {
 private:
 	int frame;
-	int width;
-	int height;
+	int width = -1;
+	int height = -1;
 
 public:
 	int duration;
 	Animation();
+	virtual ~Animation();
 	int get_frame();
 	int step_frame();
 	virtual bool step(); // True if done

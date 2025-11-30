@@ -4,9 +4,10 @@
 
 #define CHIP_SELECT 10
 
+char *print_buffer = new char[150];
+
 void print_GIFHEADER(GIFHEAD *header)
 {
-	char print_buffer[150];
 	snprintf(print_buffer, 150,
 					 "Signature:%.3s  Version:%.3s  \nScreen:(%d, %d)  Packed:%d  Background:%d  AspectRatio:%d",
 					 header->Signature,
@@ -22,7 +23,6 @@ void print_GIFHEADER(GIFHEAD *header)
 
 void print_COLORTABLE(GIFCOLORTABLE *table, int table_size)
 {
-	char print_buffer[150];
 	for (int color = 0; color < table_size; color++)
 	{
 		snprintf(print_buffer, 150,

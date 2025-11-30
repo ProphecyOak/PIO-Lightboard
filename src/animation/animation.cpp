@@ -4,7 +4,10 @@
 Animation::Animation()
 {
 	frame = -1;
+	duration = -1;
 }
+
+Animation::~Animation() {}
 
 int Animation::get_frame()
 {

@@ -11,27 +11,8 @@ int wifiStatus = WL_IDLE_STATUS;
 WiFiUDP Udp;
 NTPClient timeClient(Udp);
 
-void printWifiStatus()
-{
-	// print the SSID of the network you're attached to:
-	Serial.print("SSID: ");
-	Serial.println(WiFi.SSID());
-
-	// print your board's IP address:
-	IPAddress ip = WiFi.localIP();
-	Serial.print("IP Address: ");
-	Serial.println(ip);
-
-	// print the received signal strength:
-	long rssi = WiFi.RSSI();
-	Serial.print("signal strength (RSSI):");
-	Serial.print(rssi);
-	Serial.println(" dBm");
-}
-
 void connectToWiFi()
 {
-	// check for the WiFi module:
 	if (WiFi.status() == WL_NO_MODULE)
 	{
 		Serial.println("Communication with WiFi module failed!");
@@ -59,22 +40,26 @@ void connectToWiFi()
 	}
 
 	Serial.println("Connected to WiFi");
-	printWifiStatus();
 }
 
-RTCTime *get_network_time()
+void get_network_time()
 {
 	connectToWiFi();
 	RTC.begin();
 	timeClient.begin();
 	timeClient.update();
+
+	// Get the current date and time from an NTP server and convert
+	// it to UTC +2 by passing the time zone offset in hours.
+	// You may change the time zone offset to your local one.
 	auto timeZoneOffsetHours = -5;
 	auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
+	Serial.println(unixTime);
 	RTCTime timeToSet = RTCTime(unixTime);
 	RTC.setTime(timeToSet);
 
+	// Retrieve the date and time from the RTC and print them
 	RTCTime currentTime;
 	RTC.getTime(currentTime);
-
-	return &currentTime;
+	Serial.println("The RTC was just set to: " + String(currentTime));
 }

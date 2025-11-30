@@ -1,6 +1,6 @@
 #ifndef gif_animation_h
 #define gif_animation_h
-#include "animation.h"
+#include "animation/animation.h"
 
 class GIFAnimation : public Animation
 {

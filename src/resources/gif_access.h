@@ -33,13 +33,13 @@ private:
 	bool file_open = false;
 	GIFHEAD *file_header;
 	GIFCOLORTABLE *color_table;
+	File *get_file();
+	void close_file();
 
 public:
 	GIF_Accessor();
 	~GIF_Accessor();
 	void select_file(char *file_name_);
-	File *get_file();
-	void close_file();
 	void step_gif();
 };
 

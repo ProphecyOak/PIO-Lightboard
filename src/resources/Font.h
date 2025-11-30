@@ -2,11 +2,11 @@
 #define font_h
 #include <cstdint>
 
-const int FONT_WIDTH = 4;
-const int FONT_HEIGHT = 4;
+const int FONT_WIDTH = 7;
+const int FONT_HEIGHT = 12;
 
-uint32_t *get_character(char character);
+int *get_character(char character);
 
-extern uint32_t characters[10][16];
+extern int characters[11][84];
 
 #endif

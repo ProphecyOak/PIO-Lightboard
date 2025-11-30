@@ -1,7 +1,9 @@
 #ifndef network_h
 #define network_h
 #include <RTC.h>
+#include <NTPClient.h>
 
-RTCTime *get_network_time();
+void connectToWiFi();
+void get_network_time();
 
 #endif
