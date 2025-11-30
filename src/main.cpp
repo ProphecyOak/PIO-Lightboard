@@ -22,12 +22,12 @@ void setup()
   mike_board->setup();
   while (!Serial)
     ;
-  get_network_time();
+  // get_network_time();
   Serial.print("\n\n");
-  current_animations[1] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
-  //   GIF_Accessor gif_getter = GIF_Accessor();
-  //   gif_getter.select_file("PACMAN~1.GIF");
-  //   gif_getter.step_gif();
+  // current_animations[1] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
+  GIF_Accessor gif_getter = GIF_Accessor();
+  gif_getter.select_file("PACMAN~1.GIF");
+  gif_getter.step_gif();
 }
 
 int frame = 0;
