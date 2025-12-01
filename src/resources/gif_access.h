@@ -33,6 +33,19 @@ typedef struct
 	byte Packed;		 /* Image and Color Table Data Information */
 } GIFIMGDESC;
 
+typedef struct
+{
+	byte Introducer;		/* Extension Introducer (always 21h) */
+	byte Label;					/* Graphic Control Label (always F9h) */
+	byte BlockSize;			/* Size of remaining fields (always 04h) */
+	byte Packed;				/* Method of graphics disposal to use */
+	uint16_t DelayTime; /* Hundredths of seconds to wait	*/
+	byte ColorIndex;		/* Transparent Color Index */
+	byte Terminator;		/* Block Terminator (always 0) */
+} GIFGRAPHICCONTROL;
+
+#define FRAME_MAX 64
+
 class GIF_Accessor
 {
 private:
@@ -42,12 +55,14 @@ private:
 	bool file_open = false;
 	GIFHEAD *file_header;
 	GIFCOLORTABLE *color_table;
-	File *get_file();
 	void close_file();
+	int frame_locations[FRAME_MAX] = {};
 
 public:
 	GIF_Accessor();
 	~GIF_Accessor();
+	File *get_file();
+	int get_frame_idx(int i);
 	void select_file(char *file_name_);
 	void step_gif();
 };

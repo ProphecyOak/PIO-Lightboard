@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "framework/Board.h"
 #include "animation/primitives/buffer_animation.h"
+#include "animation/primitives/gif_animation.h"
 #include "animation/modifiers/scroll_animation.h"
 #include "animation/modifiers/offset_animation.h"
 #include "animation/year_animation.h"
@@ -18,16 +19,14 @@ long reference_time = 1764468720 - (5 * 3600);
 void setup()
 {
   Serial.begin(9600);
-  mike_board = new Board(35, 20);
-  mike_board->setup();
   while (!Serial)
     ;
-  // get_network_time();
+  mike_board = new Board(35, 20);
+  mike_board->setup();
   Serial.print("\n\n");
-  // current_animations[1] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
-  GIF_Accessor gif_getter = GIF_Accessor();
-  gif_getter.select_file("PACMAN~1.GIF");
-  gif_getter.step_gif();
+  get_network_time();
+  current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
+  // current_animations[1] = new GIFAnimation("PACMAN~1.GIF");
 }
 
 int frame = 0;

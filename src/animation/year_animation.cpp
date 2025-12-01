@@ -21,18 +21,24 @@ YearAnimation::~YearAnimation()
 char *buffer = new char[30];
 void YearAnimation::change_year()
 {
+	Serial.println();
+	display_freeram();
 	int year = std::round(last_minute * speed + start_year);
 	sprintf(buffer, "%04d  %04d", year - 1, year);
 	delete child_animation;
 	child_animation = new ScrollAnimation(BufferAnimation::from_text(buffer), ScrollAnimation::LEFT, -(FONT_WIDTH * 4 + 3));
+	display_freeram();
 }
 
 void YearAnimation::finish_transition()
 {
+	Serial.println();
+	display_freeram();
 	int year = std::round(last_minute * speed + start_year);
 	sprintf(buffer, "%04d", year);
 	delete child_animation;
 	child_animation = BufferAnimation::from_text(buffer);
+	display_freeram();
 }
 
 bool YearAnimation::step()

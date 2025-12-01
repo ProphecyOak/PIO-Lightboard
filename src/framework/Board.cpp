@@ -6,7 +6,7 @@
 
 #define LED_PIN 6
 #define LED_SKIP 0
-#define LED_BRIGHTNESS 20
+#define LED_BRIGHTNESS 255
 
 Board::Board(int width_, int height_)
 {
