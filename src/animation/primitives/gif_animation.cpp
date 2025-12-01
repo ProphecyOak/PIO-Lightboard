@@ -22,6 +22,8 @@ GIFAnimation::GIFAnimation(char *filename_, bool looping_)
 	sanj_file.read((char *)&file_info->Height, 1);
 	sanj_file.read((char *)&file_info->FrameCount, 1);
 	duration = file_info->FrameCount;
+	set_height(file_info->Height);
+	set_width(file_info->Width);
 	grid = new uint8_t *[file_info->Height];
 	for (int i = 0; i < file_info->Height; i++)
 		grid[i] = new uint8_t[file_info->Width];
@@ -72,8 +74,8 @@ bool GIFAnimation::step()
 
 void GIFAnimation::print_to(int x, int y, Buffer *dest)
 {
-	for (int y = 0; y < file_info->Height; y++)
-		for (int x = 0; x < file_info->Width; x++)
-			dest->set_pixel(x, y, grid[y][x]);
+	for (int j = 0; j < file_info->Height; j++)
+		for (int i = 0; i < file_info->Width; i++)
+			dest->set_pixel(x + i, y + j, grid[j][i]);
 	// NOT CURRENTLY USING COLOR_TABLE
 }
