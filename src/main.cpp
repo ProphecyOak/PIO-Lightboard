@@ -5,7 +5,6 @@
 #include "animation/modifiers/scroll_animation.h"
 #include "animation/modifiers/offset_animation.h"
 #include "animation/year_animation.h"
-#include "resources/gif_access.h"
 #include "resources/network.h"
 #include "framework/memory.h"
 
@@ -24,9 +23,10 @@ void setup()
   mike_board = new Board(35, 20);
   mike_board->setup();
   Serial.print("\n\n");
-  get_network_time();
-  current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
-  // current_animations[1] = new GIFAnimation("PACMAN~1.GIF");
+  // get_network_time();
+  // current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
+  current_animations[1] = new GIFAnimation("PACMAN~1.SAN");
+  // current_animations[2] = new GIFAnimation("PIXELR~1.SAN");
 }
 
 int frame = 0;
@@ -70,6 +70,6 @@ void loop()
 {
   step_animations();
   mike_board->update();
-  delay(200);
+  delay(100);
   frame++;
 }

@@ -1,55 +1,79 @@
-#include "gif_animation.h"
-#include "buffer_animation.h"
-#include "framework/Buffer.h"
-#include <string>
 #include <Arduino.h>
-#include <resources/Font.h>
-#include "resources/gif_access.h"
-#include <unordered_map>
-#include <string>
+#include "gif_animation.h"
+#include <SD.h>
+#include <SPI.h>
 
-using namespace std;
-
-GIFAnimation::GIFAnimation(char *filename)
+GIFAnimation::GIFAnimation(char *filename_, bool looping_)
 {
-	gif_access = new GIF_Accessor();
-	gif_access->select_file(filename);
+	filename = filename_;
+	looping = looping_;
+	if (!SD.begin(CHIP_SELECT))
+	{
+		Serial.println("SD CARD INITIALIZATION FAILED.");
+		while (true)
+			;
+	}
+	Serial.println("SD CARD INITIALIZATION SUCCESSFUL.");
+	sanj_file = SD.open(filename);
+	file_info = new SANJ_FILE_HEADER();
+	sanj_file.read((char *)&file_info->Signature, 4);
+	sanj_file.read((char *)&file_info->Version, 1);
+	sanj_file.read((char *)&file_info->Width, 1);
+	sanj_file.read((char *)&file_info->Height, 1);
+	sanj_file.read((char *)&file_info->FrameCount, 1);
+	duration = file_info->FrameCount;
+	grid = new uint8_t *[file_info->Height];
+	for (int i = 0; i < file_info->Height; i++)
+		grid[i] = new uint8_t[file_info->Width];
+	color_table = nullptr;
 }
 
 GIFAnimation::~GIFAnimation()
 {
-	delete gif_access;
+	sanj_file.close();
+	delete filename;
+	for (int i = 0; i < file_info->Height; i++)
+		delete[] grid[i];
+	delete[] grid;
+	delete file_info;
+	delete[] color_table;
 }
 
-void decode_LZW(File *stream, int value_count)
+void GIFAnimation::get_color_table()
 {
-	unordered_map<int, string> table;
+	delete[] color_table;
+	color_table = nullptr;
+	uint8_t color_count = sanj_file.read();
+	color_table = new uint32_t[color_count];
+	for (int i = 0; i < color_count; i++)
+	{
+		sanj_file.read(((char *)color_table) + i * 3 + 1, 1);
+		sanj_file.read(((char *)color_table) + i * 3 + 2, 1);
+		sanj_file.read(((char *)color_table) + i * 3 + 3, 1);
+	}
+}
+
+void GIFAnimation::create_buffer_from_pixels()
+{
+	for (int y = 0; y < file_info->Height; y++)
+		for (int x = 0; x < file_info->Width; x++)
+			sanj_file.read((char *)&grid[y][x], 1);
 }
 
 bool GIFAnimation::step()
 {
 	int frame = step_frame();
-	int frame_idx = gif_access->get_frame_idx(frame);
-	if (frame_idx == 0)
-		return true;
-	Serial.print("Now on frame ");
-	Serial.println(frame);
-	File *source = gif_access->get_file();
-	source->seek(frame_idx);
-	source->read(); // LZW Code Size
-	while (source->peek())
-	{
-		Serial.print("Reading block of size ");
-		uint8_t block_size = source->read();
-		Serial.println(block_size);
-		for (int i = 0; i < block_size; i++)
-		{
-			source->read();
-		}
-	}
-	return false;
+	if (frame % file_info->FrameCount == 0)
+		sanj_file.seek(8);
+	get_color_table();
+	create_buffer_from_pixels();
+	return frame >= duration && !looping;
 }
 
 void GIFAnimation::print_to(int x, int y, Buffer *dest)
 {
+	for (int y = 0; y < file_info->Height; y++)
+		for (int x = 0; x < file_info->Width; x++)
+			dest->set_pixel(x, y, grid[y][x]);
+	// NOT CURRENTLY USING COLOR_TABLE
 }
