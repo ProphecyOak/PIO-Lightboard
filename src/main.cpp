@@ -33,7 +33,7 @@ void setup()
   // SETUP ANIMATIONS
   Serial.print("\n\n");
   // get_network_time();
-  // get_request();
+  get_request();
   // current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
   // current_animations[1] = new GIFAnimation("PACMAN~1.SAN");
   // current_animations[2] = new GIFAnimation("PIXELR~1.SAN");

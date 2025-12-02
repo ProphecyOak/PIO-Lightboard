@@ -5,6 +5,6 @@
 
 void connectToWiFi();
 void get_network_time();
-void get_request();
+void get_request(char *filename = "WEB.dat");
 
 #endif

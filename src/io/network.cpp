@@ -4,9 +4,8 @@
 #include "arduino_secrets.h"
 #include <RTC.h>
 #include <HttpClient.h>
-#include <SD.h>
-#include <SPI.h>
 #include "resources/config.h"
+#include "io/storage.h"
 
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
@@ -71,13 +70,14 @@ void get_network_time()
 	Serial.println("The RTC was just set to: " + String(currentTime));
 }
 
-void get_request()
+void get_request(char *filename)
 {
 	if (wifiStatus != WL_CONNECTED)
 		connectToWiFi();
 
 	char server[] = "ansari.s3.amazonaws.com";
-	char path[] = "/pixel/mockdata.json";
+	char path[] = "/pixel/MIL_3.sanj";
+	// char path[] = "/pixel/mockdata.json";
 	Serial.print("Connecting to: ");
 	Serial.print(server);
 	Serial.println(path);
@@ -98,23 +98,28 @@ void get_request()
 				int bodyLen = http.contentLength();
 				Serial.print("Content length is: ");
 				Serial.println(bodyLen);
-				Serial.println();
-				Serial.println("Body returned follows:");
 
 				// Now we've got to the body, so we can print it out
 				unsigned long timeoutStart = millis();
-				char c;
+				int c;
+				File output_file = Storage::open_file(filename, true);
+				Serial.println(output_file);
+				uint8_t *file_buffer = new uint8_t[IO_BUFFER_SIZE + 1];
+				file_buffer[IO_BUFFER_SIZE] = 0;
 				// Whilst we haven't timed out & haven't reached the end of the body
 				while ((http.connected() || http.available()) &&
 							 ((millis() - timeoutStart) < 30 * 1000))
 				{
 					if (http.available())
 					{
-						c = http.read();
-						// Print out this character
-						if (c == '{' || c == '[')
-							Serial.println();
+						c = http.read(file_buffer, IO_BUFFER_SIZE);
+						Serial.print("Received ");
 						Serial.print(c);
+						Serial.println(" bytes of data:");
+						Serial.println((char *)file_buffer);
+						Serial.print("Storing ");
+						Serial.print(output_file.write(file_buffer, c));
+						Serial.println(" bytes to file.");
 
 						bodyLen--;
 						// We read something, reset the timeout counter
@@ -123,6 +128,8 @@ void get_request()
 					else
 						delay(1000);
 				}
+				delete[] file_buffer;
+				Storage::close_file();
 			}
 			else
 			{
@@ -142,4 +149,5 @@ void get_request()
 		Serial.println(err);
 	}
 	http.stop();
+	Serial.println("Request complete.");
 }

@@ -7,13 +7,14 @@ GIFAnimation::GIFAnimation(char *filename_, bool looping_)
 {
 	filename = filename_;
 	looping = looping_;
-	sanj_file = Storage::open_file(filename);
 	file_info = new SANJ_FILE_HEADER();
+	sanj_file = Storage::open_file(filename);
 	sanj_file.read((char *)&file_info->Signature, 4);
 	sanj_file.read((char *)&file_info->Version, 1);
 	sanj_file.read((char *)&file_info->Width, 1);
 	sanj_file.read((char *)&file_info->Height, 1);
 	sanj_file.read((char *)&file_info->FrameCount, 1);
+	Storage::close_file();
 	duration = file_info->FrameCount;
 	set_height(file_info->Height);
 	set_width(file_info->Width);
@@ -58,10 +59,12 @@ void GIFAnimation::create_buffer_from_pixels()
 bool GIFAnimation::step()
 {
 	int frame = step_frame();
+	sanj_file = Storage::open_file(filename);
 	if (frame % file_info->FrameCount == 0)
 		sanj_file.seek(8);
 	get_color_table();
 	create_buffer_from_pixels();
+	Storage::close_file();
 	return frame >= duration && !looping;
 }
 

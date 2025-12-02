@@ -19,7 +19,7 @@ void Storage::setup()
 	initialized = true;
 }
 
-File &Storage::open_file(char *filename)
+File &Storage::open_file(char *filename, bool writing)
 {
 	if (opened)
 	{
@@ -28,7 +28,18 @@ File &Storage::open_file(char *filename)
 	else
 	{
 		opened = true;
-		file = SD.open(filename);
+		Serial.print(filename);
+		Serial.print(" open for ");
+		if (writing)
+		{
+			file = SD.open(filename, FILE_WRITE);
+			Serial.println("writing.");
+		}
+		else
+		{
+			file = SD.open(filename, FILE_READ);
+			Serial.println("reading.");
+		}
 	}
 	return file;
 }
@@ -37,6 +48,7 @@ void Storage::close_file()
 {
 	file.close();
 	opened = false;
+	Serial.println("File closed.");
 }
 
 Storage::~Storage()
