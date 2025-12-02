@@ -1,12 +1,9 @@
 #include <Adafruit_NeoPixel.h>
 #include "Board.h"
 #include "Buffer.h"
-#include "../animation/animation.h"
-#include "../resources/colors.h"
-
-#define LED_PIN 6
-#define LED_SKIP 0
-#define LED_BRIGHTNESS 20
+#include "animation/animation.h"
+#include "resources/colors.h"
+#include "resources/config.h"
 
 Board::Board(int width_, int height_)
 {
@@ -32,9 +29,9 @@ void Board::setup()
 	strip->show();
 }
 
-bool Board::set_pixel(int x, int y, int color_idx)
+bool Board::set_pixel(int x, int y, uint32_t color)
 {
-	return board_buffer->set_pixel(x, y, color_idx);
+	return board_buffer->set_pixel(x, y, color);
 }
 
 void Board::print_at(int x, int y, Buffer *other_buffer)
@@ -66,7 +63,7 @@ void Board::update()
 			int idx = width * y + (width - 1) * (y % 2) + (width - x - 1) * pow(-1, y);
 			strip->setPixelColor(
 					LED_SKIP + idx,
-					colors[(*board_buffer)(x, y)]);
+					(*board_buffer)(x, y));
 		}
 	}
 	strip->show();

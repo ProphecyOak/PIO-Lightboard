@@ -1,16 +1,17 @@
 #include <Arduino.h>
 #include "Buffer.h"
-#include "../resources/Font.h"
+#include "resources/Font.h"
 #include "memory.h"
+#include "resources/colors.h"
 
 Buffer::Buffer(int width_, int height_)
 {
 	width = width_;
 	height = height_;
-	grid = new int *[height];
+	grid = new uint32_t *[height];
 	for (int y = 0; y < height; y++)
 	{
-		grid[y] = new int[width];
+		grid[y] = new uint32_t[width];
 	}
 	reset();
 }
@@ -35,15 +36,15 @@ void Buffer::print_to(int x, int y, Buffer *dest)
 	}
 }
 
-bool Buffer::set_pixel(int x, int y, int color_idx)
+bool Buffer::set_pixel(int x, int y, uint32_t color)
 {
 	if (x < 0 || x >= width || y < 0 || y >= height)
 		return false;
-	grid[y][x] = color_idx;
+	grid[y][x] = color;
 	return true;
 }
 
-int Buffer::operator()(int x, int y)
+uint32_t Buffer::operator()(int x, int y)
 {
 	return grid[y][x];
 }
@@ -55,7 +56,7 @@ void Buffer::from_character(char character)
 	{
 		for (int x = 0; x < FONT_WIDTH; x++)
 		{
-			set_pixel(x, y, character_array[y * FONT_WIDTH + x]);
+			set_pixel(x, y, colors[character_array[y * FONT_WIDTH + x]]);
 		}
 	}
 }

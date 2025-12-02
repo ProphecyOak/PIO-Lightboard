@@ -1,20 +1,13 @@
 #include <Arduino.h>
 #include "gif_animation.h"
-#include <SD.h>
-#include <SPI.h>
+#include "resources/config.h"
+#include "io/storage.h"
 
 GIFAnimation::GIFAnimation(char *filename_, bool looping_)
 {
 	filename = filename_;
 	looping = looping_;
-	if (!SD.begin(CHIP_SELECT))
-	{
-		Serial.println("SD CARD INITIALIZATION FAILED.");
-		while (true)
-			;
-	}
-	Serial.println("SD CARD INITIALIZATION SUCCESSFUL.");
-	sanj_file = SD.open(filename);
+	sanj_file = Storage::open_file(filename);
 	file_info = new SANJ_FILE_HEADER();
 	sanj_file.read((char *)&file_info->Signature, 4);
 	sanj_file.read((char *)&file_info->Version, 1);
@@ -46,12 +39,12 @@ void GIFAnimation::get_color_table()
 	delete[] color_table;
 	color_table = nullptr;
 	uint8_t color_count = sanj_file.read();
-	color_table = new uint32_t[color_count];
-	for (int i = 0; i < color_count; i++)
+	color_table = new uint32_t[color_count + 1];
+	for (int i = 0; i < color_count + 1; i++)
 	{
-		sanj_file.read(((char *)color_table) + i * 3 + 1, 1);
-		sanj_file.read(((char *)color_table) + i * 3 + 2, 1);
 		sanj_file.read(((char *)color_table) + i * 3 + 3, 1);
+		sanj_file.read(((char *)color_table) + i * 3 + 2, 1);
+		sanj_file.read(((char *)color_table) + i * 3 + 1, 1);
 	}
 }
 
@@ -76,6 +69,5 @@ void GIFAnimation::print_to(int x, int y, Buffer *dest)
 {
 	for (int j = 0; j < file_info->Height; j++)
 		for (int i = 0; i < file_info->Width; i++)
-			dest->set_pixel(x + i, y + j, grid[j][i]);
-	// NOT CURRENTLY USING COLOR_TABLE
+			dest->set_pixel(x + i, y + j, color_table[grid[j][i]]);
 }

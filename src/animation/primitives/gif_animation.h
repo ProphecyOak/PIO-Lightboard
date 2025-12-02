@@ -3,8 +3,6 @@
 #include "animation/animation.h"
 #include <SD.h>
 
-#define CHIP_SELECT 10
-
 typedef struct
 {
 	char Signature[4];

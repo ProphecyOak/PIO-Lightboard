@@ -5,5 +5,6 @@
 
 void connectToWiFi();
 void get_network_time();
+void get_request();
 
 #endif

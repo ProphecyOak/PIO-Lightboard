@@ -16,7 +16,7 @@ public:
 	Board(int width_, int height_);
 	~Board();
 	void setup();
-	bool set_pixel(int x, int y, int color_idx);
+	bool set_pixel(int x, int y, uint32_t color);
 	void print_at(int x, int y, Buffer *buffer);
 	void print_at(int x, int y, Animation *animation);
 	void reset();
