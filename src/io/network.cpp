@@ -11,6 +11,7 @@ char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 
 int wifiStatus = WL_IDLE_STATUS;
+bool time_retrieved = false;
 WiFiUDP Udp;
 WiFiClient client;
 NTPClient timeClient(Udp);
@@ -48,6 +49,8 @@ void connectToWiFi()
 
 void get_network_time()
 {
+	if (time_retrieved)
+		return;
 	if (wifiStatus != WL_CONNECTED)
 		connectToWiFi();
 
@@ -55,32 +58,24 @@ void get_network_time()
 	timeClient.begin();
 	timeClient.update();
 
-	// Get the current date and time from an NTP server and convert
-	// it to UTC +2 by passing the time zone offset in hours.
-	// You may change the time zone offset to your local one.
 	auto timeZoneOffsetHours = -5;
 	auto unixTime = timeClient.getEpochTime() + (timeZoneOffsetHours * 3600);
 	Serial.println(unixTime);
 	RTCTime timeToSet = RTCTime(unixTime);
 	RTC.setTime(timeToSet);
 
-	// Retrieve the date and time from the RTC and print them
 	RTCTime currentTime;
 	RTC.getTime(currentTime);
 	Serial.println("The RTC was just set to: " + String(currentTime));
+
+	time_retrieved = true;
 }
 
-void get_request(char *filename)
+int get_request(char *server, char *path, char *destination)
 {
 	if (wifiStatus != WL_CONNECTED)
 		connectToWiFi();
 
-	char server[] = "ansari.s3.amazonaws.com";
-	char path[] = "/pixel/MIL_3.sanj";
-	// char path[] = "/pixel/mockdata.json";
-	Serial.print("Connecting to: ");
-	Serial.print(server);
-	Serial.println(path);
 	HttpClient http(client);
 	int err = 0;
 	err = http.get(server, path);
@@ -92,6 +87,8 @@ void get_request(char *filename)
 		{
 			Serial.print("Got status code: ");
 			Serial.println(err);
+			if (err != 200)
+				return err;
 			err = http.skipResponseHeaders();
 			if (err >= 0)
 			{
@@ -99,30 +96,20 @@ void get_request(char *filename)
 				Serial.print("Content length is: ");
 				Serial.println(bodyLen);
 
-				// Now we've got to the body, so we can print it out
 				unsigned long timeoutStart = millis();
 				int c;
-				File output_file = Storage::open_file(filename, true);
-				Serial.println(output_file);
+				File output_file = Storage::open_file(destination, true);
 				uint8_t *file_buffer = new uint8_t[IO_BUFFER_SIZE + 1];
 				file_buffer[IO_BUFFER_SIZE] = 0;
-				// Whilst we haven't timed out & haven't reached the end of the body
 				while ((http.connected() || http.available()) &&
 							 ((millis() - timeoutStart) < 30 * 1000))
 				{
 					if (http.available())
 					{
 						c = http.read(file_buffer, IO_BUFFER_SIZE);
-						Serial.print("Received ");
-						Serial.print(c);
-						Serial.println(" bytes of data:");
-						Serial.println((char *)file_buffer);
-						Serial.print("Storing ");
-						Serial.print(output_file.write(file_buffer, c));
-						Serial.println(" bytes to file.");
+						output_file.write(file_buffer, c);
 
-						bodyLen--;
-						// We read something, reset the timeout counter
+						bodyLen -= c;
 						timeoutStart = millis();
 					}
 					else
@@ -135,19 +122,39 @@ void get_request(char *filename)
 			{
 				Serial.print("Failed to skip response headers: ");
 				Serial.println(err);
+				return err;
 			}
 		}
 		else
 		{
 			Serial.print("Getting response failed: ");
 			Serial.println(err);
+			return err;
 		}
 	}
 	else
 	{
 		Serial.print("Connect failed: ");
 		Serial.println(err);
+		return err;
 	}
 	http.stop();
 	Serial.println("Request complete.");
+	return 200;
+}
+
+int get_sanj_file(int file_number)
+{
+	char *path = new char[21];
+	path[21] = '\0';
+	sprintf(path, "/pixel/MIL_%04d.sanj", file_number);
+
+	char *destination = new char[13];
+	destination[13] = '\0';
+	sprintf(destination, "SANJ%04d.bin", file_number);
+
+	int status = get_request("ansari.s3.amazonaws.com", path, destination);
+	delete path;
+	delete destination;
+	return status;
 }

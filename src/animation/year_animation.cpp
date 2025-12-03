@@ -6,9 +6,11 @@
 #include "modifiers/scroll_animation.h"
 #include "resources/Font.h"
 #include "framework/memory.h"
+#include "io/network.h"
 
 YearAnimation::YearAnimation(int start_year_, long reference_time_)
 {
+	get_network_time();
 	start_year = start_year_;
 	reference_time = reference_time_;
 }

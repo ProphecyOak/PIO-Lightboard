@@ -14,7 +14,7 @@
 Board *mike_board;
 Animation *current_animations[10] = {};
 int start_year = 0;
-long reference_time = 1764468720 - (5 * 3600);
+long reference_time = 1764729000 - (5 * 3600);
 
 void setup()
 {
@@ -32,8 +32,7 @@ void setup()
 
   // SETUP ANIMATIONS
   Serial.print("\n\n");
-  // get_network_time();
-  get_request();
+  get_sanj_file(37);
   // current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
   // current_animations[1] = new GIFAnimation("PACMAN~1.SAN");
   // current_animations[2] = new GIFAnimation("PIXELR~1.SAN");
@@ -79,8 +78,8 @@ void step_animations()
 
 void loop()
 {
-  // step_animations();
-  // mike_board->update();
-  // delay(1000);
-  // frame++;
+  step_animations();
+  mike_board->update();
+  delay(100);
+  frame++;
 }
