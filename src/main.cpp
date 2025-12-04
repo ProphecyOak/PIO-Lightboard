@@ -35,8 +35,7 @@ void setup()
 
   // SETUP ANIMATIONS
   Serial.print("\n\n");
-  int file_to_grab = 94;
-  // get_sanj_file(file_to_grab);
+  int file_to_grab = 5;
   // current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
   current_animations[1] = new SANJanimation(file_to_grab);
   // current_animations[2] = BufferAnimation::from_small_text("abc?>");

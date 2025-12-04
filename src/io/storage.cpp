@@ -29,7 +29,6 @@ File &Storage::open_file(char *filename, bool writing)
 	}
 	else
 	{
-		opened = true;
 		if (SD_DEBUG)
 		{
 			Serial.print(filename);
@@ -47,6 +46,8 @@ File &Storage::open_file(char *filename, bool writing)
 			if (SD_DEBUG)
 				Serial.println("reading.");
 		}
+		if (file)
+			opened = true;
 	}
 	return file;
 }

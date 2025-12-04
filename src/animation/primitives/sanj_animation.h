@@ -29,6 +29,7 @@ public:
 	~SANJanimation();
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;
+	bool is_text();
 };
 
 #endif
