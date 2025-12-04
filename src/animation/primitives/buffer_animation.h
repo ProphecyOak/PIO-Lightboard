@@ -13,6 +13,8 @@ public:
 	~BufferAnimation();
 	static BufferAnimation *from_text(
 			char *text, int duration_ = -1);
+	static BufferAnimation *from_small_text(
+			char *text, int duration_ = -1);
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;
 };

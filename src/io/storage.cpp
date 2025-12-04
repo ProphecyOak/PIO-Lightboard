@@ -2,6 +2,8 @@
 #include <SD.h>
 #include "resources/config.h"
 
+#define SD_DEBUG false
+
 bool Storage::initialized = false;
 bool Storage::opened = false;
 File Storage::file;
@@ -28,17 +30,22 @@ File &Storage::open_file(char *filename, bool writing)
 	else
 	{
 		opened = true;
-		Serial.print(filename);
-		Serial.print(" open for ");
+		if (SD_DEBUG)
+		{
+			Serial.print(filename);
+			Serial.print(" open for ");
+		}
 		if (writing)
 		{
 			file = SD.open(filename, FILE_WRITE);
-			Serial.println("writing.");
+			if (SD_DEBUG)
+				Serial.println("writing.");
 		}
 		else
 		{
 			file = SD.open(filename, FILE_READ);
-			Serial.println("reading.");
+			if (SD_DEBUG)
+				Serial.println("reading.");
 		}
 	}
 	return file;
@@ -48,7 +55,8 @@ void Storage::close_file()
 {
 	file.close();
 	opened = false;
-	Serial.println("File closed.");
+	if (SD_DEBUG)
+		Serial.println("File closed.");
 }
 
 Storage::~Storage()

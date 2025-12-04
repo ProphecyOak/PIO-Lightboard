@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <NTPClient.h>
 #include <WiFiS3.h>
 #include <WiFiUdp.h>
@@ -100,7 +101,7 @@ int get_request(char *server, char *path, char *destination)
 				int c;
 				File output_file = Storage::open_file(destination, true);
 				uint8_t *file_buffer = new uint8_t[IO_BUFFER_SIZE + 1];
-				file_buffer[IO_BUFFER_SIZE] = 0;
+				file_buffer[IO_BUFFER_SIZE] = '\0';
 				while ((http.connected() || http.available()) &&
 							 ((millis() - timeoutStart) < 30 * 1000))
 				{
@@ -108,7 +109,6 @@ int get_request(char *server, char *path, char *destination)
 					{
 						c = http.read(file_buffer, IO_BUFFER_SIZE);
 						output_file.write(file_buffer, c);
-
 						bodyLen -= c;
 						timeoutStart = millis();
 					}

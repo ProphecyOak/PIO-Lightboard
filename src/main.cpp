@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "framework/Board.h"
 #include "animation/primitives/buffer_animation.h"
-#include "animation/primitives/gif_animation.h"
+#include "animation/primitives/sanj_animation.h"
 #include "animation/modifiers/scroll_animation.h"
 #include "animation/modifiers/offset_animation.h"
 #include "animation/year_animation.h"
@@ -15,6 +15,9 @@ Board *mike_board;
 Animation *current_animations[10] = {};
 int start_year = 0;
 long reference_time = 1764729000 - (5 * 3600);
+int frame_delay_ms = 100;
+
+#define LOOPING true
 
 void setup()
 {
@@ -32,11 +35,11 @@ void setup()
 
   // SETUP ANIMATIONS
   Serial.print("\n\n");
-  get_sanj_file(37);
+  int file_to_grab = 94;
+  // get_sanj_file(file_to_grab);
   // current_animations[0] = new OffsetAnimation(new YearAnimation(start_year, reference_time), 2, 4);
-  // current_animations[1] = new GIFAnimation("PACMAN~1.SAN");
-  // current_animations[2] = new GIFAnimation("PIXELR~1.SAN");
-  // current_animations[3] = new GIFAnimation("TESTPA~1.SAN");
+  current_animations[1] = new SANJanimation(file_to_grab);
+  // current_animations[2] = BufferAnimation::from_small_text("abc?>");
 }
 
 int frame = 0;
@@ -78,8 +81,11 @@ void step_animations()
 
 void loop()
 {
-  step_animations();
-  mike_board->update();
-  delay(100);
-  frame++;
+  if (LOOPING)
+  {
+    step_animations();
+    mike_board->update();
+    delay(frame_delay_ms);
+    frame++;
+  }
 }

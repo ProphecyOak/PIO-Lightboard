@@ -1,5 +1,5 @@
-#ifndef gif_animation_h
-#define gif_animation_h
+#ifndef sanj_animation_h
+#define sanj_animation_h
 #include "animation/animation.h"
 #include <SD.h>
 
@@ -7,26 +7,26 @@ typedef struct
 {
 	char Signature[4];
 	uint8_t Version;
+	bool text;
 	uint8_t Width;
 	uint8_t Height;
 	uint8_t FrameCount;
+	bool is_text;
 } SANJ_FILE_HEADER;
 
-class GIFAnimation : public Animation
+class SANJanimation : public Animation
 {
 private:
 	char *filename;
 	bool looping;
 	File sanj_file;
 	SANJ_FILE_HEADER *file_info;
-	uint32_t *color_table;
-	void get_color_table();
-	uint8_t **grid;
+	uint32_t **grid;
 	void create_buffer_from_pixels();
 
 public:
-	GIFAnimation(char *filename_, bool looping_ = true);
-	~GIFAnimation();
+	SANJanimation(int file_number, bool looping_ = true);
+	~SANJanimation();
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;
 };
