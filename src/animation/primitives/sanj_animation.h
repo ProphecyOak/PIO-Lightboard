@@ -25,7 +25,7 @@ private:
 	void create_buffer_from_pixels();
 
 public:
-	SANJanimation(int file_number, bool looping_ = true);
+	SANJanimation(int file_number, bool looping_ = false);
 	~SANJanimation();
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;

@@ -8,6 +8,9 @@
 // LEDS
 #define LED_PIN 6
 #define LED_SKIP 0
-#define LED_BRIGHTNESS 20
+#define LED_BRIGHTNESS 255
+
+// YEAR ANIMATION
+#define FADE_TIME 8
 
 #endif

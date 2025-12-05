@@ -7,12 +7,13 @@
 #include "resources/Font.h"
 #include "framework/memory.h"
 #include "io/network.h"
+#include "resources/config.h"
 
-YearAnimation::YearAnimation(int start_year_, long reference_time_)
+YearAnimation::YearAnimation(int start_year_)
 {
-	get_network_time();
 	start_year = start_year_;
-	reference_time = reference_time_;
+	changed = false;
+	finish_transition();
 }
 
 YearAnimation::~YearAnimation()
@@ -23,16 +24,18 @@ YearAnimation::~YearAnimation()
 char *buffer = new char[30];
 void YearAnimation::change_year()
 {
-	int year = std::round(last_minute * speed + start_year);
+	if (changed)
+		return;
+	int year = start_year + 1;
 	sprintf(buffer, "%04d  %04d", year - 1, year);
 	delete child_animation;
 	child_animation = new ScrollAnimation(BufferAnimation::from_text(buffer), ScrollAnimation::LEFT, -(FONT_WIDTH * 4 + 3));
+	changed = true;
 }
 
 void YearAnimation::finish_transition()
 {
-	int year = std::round(last_minute * speed + start_year);
-	sprintf(buffer, "%04d", year);
+	sprintf(buffer, "%04d", start_year + changed);
 	delete child_animation;
 	child_animation = BufferAnimation::from_text(buffer);
 }
@@ -40,14 +43,8 @@ void YearAnimation::finish_transition()
 bool YearAnimation::step()
 {
 	int frame = step_frame();
-	RTCTime current_time;
-	RTC.getTime(current_time);
-	int current_minute = (current_time.getUnixTime() + FADE_TIME - reference_time) / 60;
-	if (current_minute != last_minute)
-	{
-		last_minute = current_minute;
+	if (seconds_remaining < FADE_TIME)
 		change_year();
-	}
 	return false;
 }
 
@@ -60,4 +57,9 @@ void YearAnimation::print_to(int x, int y, Buffer *dest)
 		finish_transition();
 	}
 	child_animation->print_to(x, y, dest);
+}
+
+void YearAnimation::provide_time_remaining(int seconds_remaining_)
+{
+	seconds_remaining = seconds_remaining_;
 }

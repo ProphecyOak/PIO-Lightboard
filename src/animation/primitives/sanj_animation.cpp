@@ -16,8 +16,10 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 	sanj_file = Storage::open_file(filename);
 	if (!sanj_file)
 	{
-		get_sanj_file(file_number);
-		sanj_file = Storage::open_file(filename);
+		set_width(0);
+		set_height(0);
+		duration = 0;
+		return;
 	}
 	sanj_file.read((char *)&file_info->Signature, 4);
 	sanj_file.read((char *)&file_info->Version, 1);
@@ -33,6 +35,7 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 		file_info->Width = min(32, file_info->Width);
 		set_height(7);
 		set_width(file_info->Width * 6 - 1);
+		duration = get_width() + 35;
 		grid = new uint32_t *[7];
 		for (int i = 0; i < 7; i++)
 			grid[i] = new uint32_t[file_info->Width * 6 - 1];
@@ -91,8 +94,8 @@ void SANJanimation::create_buffer_from_pixels()
 				uint8_t r;
 				uint8_t g;
 				uint8_t b;
-				sanj_file.read(&r, 1);
 				sanj_file.read(&g, 1);
+				sanj_file.read(&r, 1);
 				sanj_file.read(&b, 1);
 				grid[y][x] = r * 0x10000 + g * 0x100 + b;
 			}
