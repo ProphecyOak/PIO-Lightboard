@@ -21,7 +21,7 @@ private:
 	bool looping;
 	File sanj_file;
 	SANJ_FILE_HEADER *file_info;
-	uint32_t **grid;
+	uint32_t *grid;
 	void create_buffer_from_pixels();
 
 public:

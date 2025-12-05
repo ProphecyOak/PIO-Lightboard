@@ -37,22 +37,16 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 		set_height(7);
 		set_width(file_info->Width * 6 - 1);
 		duration = get_width() + 35;
-		grid = new uint32_t *[get_height()];
-		for (int i = 0; i < get_height(); i++)
-			grid[i] = new uint32_t[get_width()];
-		for (int c = 0; c < file_info->Width; c++)
-			for (int y = 0; y < 7; y++)
-				grid[y][c * 6 + 5] = 0x00000000;
 	}
 	else
 	{
 		duration = file_info->FrameCount;
 		set_height(file_info->Height);
 		set_width(file_info->Width);
-		grid = new uint32_t *[get_height()];
-		for (int i = 0; i < get_height(); i++)
-			grid[i] = new uint32_t[get_width()];
 	}
+	grid = new uint32_t[get_height() * get_width()];
+	for (int i = 0; i < get_width() * get_height(); i++)
+		grid[i] = 0x00000000;
 	Storage::close_file();
 	display_freeram();
 }
@@ -60,9 +54,12 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 SANJanimation::~SANJanimation()
 {
 	delete[] filename;
-	for (int i = 0; i < get_height(); i++)
-		delete[] grid[i];
-	if (get_height() != 0)
+	Serial.print("(");
+	Serial.print(get_width());
+	Serial.print(",");
+	Serial.print(get_height());
+	Serial.println(")");
+	if (get_height() != 0 && get_width() != 0)
 		delete[] grid;
 	delete file_info;
 	Serial.println("[DELETED SANJANIMATION]");
@@ -84,7 +81,7 @@ void SANJanimation::create_buffer_from_pixels()
 				for (int y = 0; y < 7; y++)
 				{
 					uint8_t mask = 1u << y;
-					grid[y][i * 6 + x] = 0x00FFFFFF * ((column & mask) > 0);
+					grid[y * get_width() + i * 6 + x] = 0x00FFFFFF * ((column & mask) > 0);
 				}
 			}
 		}
@@ -102,7 +99,7 @@ void SANJanimation::create_buffer_from_pixels()
 				sanj_file.read(&g, 1);
 				sanj_file.read(&r, 1);
 				sanj_file.read(&b, 1);
-				grid[y][x] = r * 0x10000 + g * 0x100 + b;
+				grid[y * get_width() + x] = r * 0x10000 + g * 0x100 + b;
 			}
 		}
 	}
@@ -131,7 +128,7 @@ void SANJanimation::print_to(int x, int y, Buffer *dest)
 {
 	for (int j = 0; j < get_height(); j++)
 		for (int i = 0; i < get_width(); i++)
-			dest->set_pixel(x + i, y + j, grid[j][i]);
+			dest->set_pixel(x + i, y + j, grid[j * get_width() + i]);
 }
 
 bool SANJanimation::is_text()

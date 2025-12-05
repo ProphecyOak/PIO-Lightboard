@@ -117,33 +117,33 @@ void loop()
         if (highest_sanj_available >= next_sanj_number)
         { // FILE EXISTS
           Serial.println("[NEW SANJANIMATION]");
-          // current_animations[1] = new SANJanimation(next_sanj_number);
+          current_animations[1] = new SANJanimation(next_sanj_number);
           // delete current_animations[1];
-          SANJanimation *temp = new SANJanimation(next_sanj_number);
-          delete temp;
-          //   if (current_animations[1]->duration > 30 * fps)
-          //   { // ANIMATION TOO LONG TO INCLUDE
-          //     delete current_animations[1];
-          //     current_animations[1] = nullptr;
-          //     Serial.println("Deleting Large Animation.");
-          //     gap(seconds_remaining);
-          //   }
-          //   else if (current_animations[1]->duration >= (seconds_remaining - BLACKOUT_RADIUS) * fps)
-          //   { // QUEUE LONG ANIMATION
-          //     animation_queued = true;
-          //     Serial.println("Queuing Animation.");
-          //     gap(seconds_remaining);
-          //   }
-          //   else
-          //   { // PLAY FILE ANIMATION
-          //     animation_to_animate = 1;
-          //     in_gap = false;
-          //     frames_left_in_segment = current_animations[1]->duration;
-          //     next_sanj_number++;
-          //     animation_queued = false;
-          //     Serial.print("Playing animation with duration: ");
-          //     Serial.println(frames_left_in_segment);
-          //   }
+          // SANJanimation *temp = new SANJanimation(next_sanj_number);
+          // delete temp;
+          if (current_animations[1]->duration > 30 * fps)
+          { // ANIMATION TOO LONG TO INCLUDE
+            delete current_animations[1];
+            current_animations[1] = nullptr;
+            Serial.println("Deleting Large Animation.");
+            gap(seconds_remaining);
+          }
+          else if (current_animations[1]->duration >= (seconds_remaining - BLACKOUT_RADIUS) * fps)
+          { // QUEUE LONG ANIMATION
+            animation_queued = true;
+            Serial.println("Queuing Animation.");
+            gap(seconds_remaining);
+          }
+          else
+          { // PLAY FILE ANIMATION
+            animation_to_animate = 1;
+            in_gap = false;
+            frames_left_in_segment = current_animations[1]->duration;
+            next_sanj_number++;
+            animation_queued = false;
+            Serial.print("Playing animation with duration: ");
+            Serial.println(frames_left_in_segment);
+          }
         }
         else
         { // FILE DOES NOT EXIST YET
