@@ -27,6 +27,9 @@ private:
 public:
 	SANJanimation(int file_number, bool looping_ = false);
 	~SANJanimation();
+	SANJanimation(const SANJanimation &obj) = delete;
+	SANJanimation(SANJanimation &&obj) = delete;
+	SANJanimation &operator=(const SANJanimation &obj) = delete;
 	bool step() override;
 	void print_to(int x, int y, Buffer *dest) override;
 	bool is_text();

@@ -13,4 +13,7 @@
 // YEAR ANIMATION
 #define FADE_TIME 8
 
+// SCHEDULING
+#define BLACKOUT_RADIUS 60
+
 #endif

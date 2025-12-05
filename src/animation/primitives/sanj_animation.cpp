@@ -8,7 +8,8 @@
 
 SANJanimation::SANJanimation(int file_number, bool looping_)
 {
-	filename = new char[13];
+	display_freeram();
+	filename = new char[14];
 	filename[13] = '\0';
 	sprintf(filename, "SANJ%04d.bin", file_number);
 	looping = looping_;
@@ -36,9 +37,9 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 		set_height(7);
 		set_width(file_info->Width * 6 - 1);
 		duration = get_width() + 35;
-		grid = new uint32_t *[7];
-		for (int i = 0; i < 7; i++)
-			grid[i] = new uint32_t[file_info->Width * 6 - 1];
+		grid = new uint32_t *[get_height()];
+		for (int i = 0; i < get_height(); i++)
+			grid[i] = new uint32_t[get_width()];
 		for (int c = 0; c < file_info->Width; c++)
 			for (int y = 0; y < 7; y++)
 				grid[y][c * 6 + 5] = 0x00000000;
@@ -48,20 +49,23 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 		duration = file_info->FrameCount;
 		set_height(file_info->Height);
 		set_width(file_info->Width);
-		grid = new uint32_t *[file_info->Height];
-		for (int i = 0; i < file_info->Height; i++)
-			grid[i] = new uint32_t[file_info->Width];
+		grid = new uint32_t *[get_height()];
+		for (int i = 0; i < get_height(); i++)
+			grid[i] = new uint32_t[get_width()];
 	}
 	Storage::close_file();
+	display_freeram();
 }
 
 SANJanimation::~SANJanimation()
 {
-	delete filename;
-	for (int i = 0; i < file_info->Height; i++)
+	delete[] filename;
+	for (int i = 0; i < get_height(); i++)
 		delete[] grid[i];
-	delete[] grid;
+	if (get_height() != 0)
+		delete[] grid;
 	delete file_info;
+	Serial.println("[DELETED SANJANIMATION]");
 }
 
 void SANJanimation::create_buffer_from_pixels()
@@ -84,6 +88,7 @@ void SANJanimation::create_buffer_from_pixels()
 				}
 			}
 		}
+		delete text;
 	}
 	else
 	{

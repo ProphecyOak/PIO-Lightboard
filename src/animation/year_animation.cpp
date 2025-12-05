@@ -26,8 +26,8 @@ void YearAnimation::change_year()
 {
 	if (changed)
 		return;
-	int year = start_year + 1;
-	sprintf(buffer, "%04d  %04d", year - 1, year);
+	start_year++;
+	sprintf(buffer, "%04d  %04d", start_year - 1, start_year);
 	delete child_animation;
 	child_animation = new ScrollAnimation(BufferAnimation::from_text(buffer), ScrollAnimation::LEFT, -(FONT_WIDTH * 4 + 3));
 	changed = true;
@@ -35,7 +35,8 @@ void YearAnimation::change_year()
 
 void YearAnimation::finish_transition()
 {
-	sprintf(buffer, "%04d", start_year + changed);
+	changed = false;
+	sprintf(buffer, "%04d", start_year);
 	delete child_animation;
 	child_animation = BufferAnimation::from_text(buffer);
 }

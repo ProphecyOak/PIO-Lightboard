@@ -7,6 +7,7 @@
 #include <HttpClient.h>
 #include "resources/config.h"
 #include "io/storage.h"
+#include "framework/memory.h"
 
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
@@ -82,20 +83,20 @@ int get_request(char *server, char *path, char *destination)
 	err = http.get(server, path);
 	if (err == 0)
 	{
-		Serial.println("Started request ok.");
+		// Serial.println("Started request ok.");
 		err = http.responseStatusCode();
 		if (err >= 0)
 		{
-			Serial.print("Got status code: ");
-			Serial.println(err);
+			// Serial.print("Got status code: ");
+			// Serial.println(err);
 			if (err != 200)
 				return err;
 			err = http.skipResponseHeaders();
 			if (err >= 0)
 			{
 				int bodyLen = http.contentLength();
-				Serial.print("Content length is: ");
-				Serial.println(bodyLen);
+				// Serial.print("Content length is: ");
+				// Serial.println(bodyLen);
 
 				unsigned long timeoutStart = millis();
 				int c;
@@ -116,30 +117,31 @@ int get_request(char *server, char *path, char *destination)
 						delay(1000);
 				}
 				delete[] file_buffer;
+				file_buffer = nullptr;
 				Storage::close_file();
 			}
 			else
 			{
-				Serial.print("Failed to skip response headers: ");
-				Serial.println(err);
+				// Serial.print("Failed to skip response headers: ");
+				// Serial.println(err);
 				return err;
 			}
 		}
 		else
 		{
-			Serial.print("Getting response failed: ");
-			Serial.println(err);
+			// Serial.print("Getting response failed: ");
+			// Serial.println(err);
 			return err;
 		}
 	}
 	else
 	{
-		Serial.print("Connect failed: ");
-		Serial.println(err);
+		// Serial.print("Connect failed: ");
+		// Serial.println(err);
 		return err;
 	}
 	http.stop();
-	Serial.println("Request complete.");
+	// Serial.println("Request complete.");
 	return 200;
 }
 
@@ -154,7 +156,7 @@ int get_sanj_file(int file_number)
 	sprintf(destination, "SANJ%04d.bin", file_number);
 
 	int status = get_request("ansari.s3.amazonaws.com", path, destination);
-	delete path;
-	delete destination;
+	delete[] path;
+	delete[] destination;
 	return status;
 }
