@@ -40,7 +40,7 @@ SANJanimation::SANJanimation(int file_number, bool looping_)
 	}
 	else
 	{
-		duration = file_info->FrameCount;
+		duration = max(file_info->FrameCount, MINIMUM_GIF_DURATION * FPS);
 		set_height(file_info->Height);
 		set_width(file_info->Width);
 	}
@@ -75,6 +75,8 @@ void SANJanimation::create_buffer_from_pixels()
 
 		for (int i = 0; i < file_info->Width; i++)
 		{
+			if ((int)text[i] > 127)
+				continue;
 			for (int x = 0; x < 5; x++)
 			{
 				byte column = font5x7[x + (int)text[i] * 5];
@@ -126,9 +128,15 @@ bool SANJanimation::step()
 
 void SANJanimation::print_to(int x, int y, Buffer *dest)
 {
+	int text_scroll = is_text() ? get_frame() : 0;
+	int gif_centering_x = is_text() && get_width() < 35 ? (35 - get_width()) / 2 : 0;
+	int gif_centering_y = is_text() && get_height() < 20 ? (20 - get_height()) / 2 : 0;
 	for (int j = 0; j < get_height(); j++)
 		for (int i = 0; i < get_width(); i++)
-			dest->set_pixel(x + i, y + j, grid[j * get_width() + i]);
+			dest->set_pixel(
+					x + i - text_scroll + is_text() * 35 + gif_centering_x,
+					y + j + gif_centering_y,
+					grid[j * get_width() + i]);
 }
 
 bool SANJanimation::is_text()

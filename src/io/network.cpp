@@ -147,11 +147,11 @@ int get_request(char *server, char *path, char *destination)
 
 int get_sanj_file(int file_number)
 {
-	char *path = new char[21];
+	char *path = new char[22];
 	path[21] = '\0';
 	sprintf(path, "/pixel/MIL_%04d.sanj", file_number);
 
-	char *destination = new char[13];
+	char *destination = new char[14];
 	destination[13] = '\0';
 	sprintf(destination, "SANJ%04d.bin", file_number);
 

@@ -42,7 +42,7 @@ void setup()
   RTCTime current_time;
   RTC.getTime(current_time);
   int hours_since_day = current_time.getHour();
-  int current_decade = 1780 + hours_since_day * 10;
+  int current_decade = 1780 + hours_since_day * 10 + 2;
   int minutes_since_hour = current_time.getMinutes();
   int current_year = current_decade + minutes_since_hour / 10;
   current_year_animation = new YearAnimation(current_year);
@@ -50,13 +50,14 @@ void setup()
   current_animations[1] = nullptr;
 }
 
+int start_with = 140;
+
 int frame = 0;
 
 bool year_change_initiated = false;
-int next_sanj_number = 1;
-int highest_sanj_available = 0;
+int next_sanj_number = start_with + 1;
+int highest_sanj_available = start_with;
 int frames_left_in_segment = 0;
-int fps = 10;
 bool in_gap = true;
 char filename[13]{};
 bool animation_queued = false;
@@ -66,9 +67,15 @@ bool requesting_allowed = false;
 void gap(int seconds_remaining)
 {
   animation_to_animate = 0;
-  frames_left_in_segment = 5 * fps;
+  frames_left_in_segment = 5 * FPS;
   in_gap = true;
   requesting_allowed = seconds_remaining > BLACKOUT_RADIUS + 30;
+}
+
+bool blackout(int seconds_remaining)
+{
+  return (current_animations[1]->duration <= ((seconds_remaining - BLACKOUT_RADIUS) * FPS)) ||
+         (seconds_remaining > (360 - BLACKOUT_RADIUS));
 }
 
 void loop()
@@ -77,8 +84,8 @@ void loop()
   RTC.getTime(current_time);
   int hours_since_day = current_time.getHour();
   int current_decade = 1780 + hours_since_day * 10;
-  int minutes_since_hour = current_time.getMinutes() + 1;
-  int current_year = current_decade + minutes_since_hour / 6;
+  int minutes_since_hour = current_time.getMinutes();
+  int current_year = current_decade + minutes_since_hour / 6 + 1;
   int seconds_since_minute = current_time.getSeconds();
   int seconds_remaining = 360 - ((minutes_since_hour % 6) * 60 + seconds_since_minute);
   if (frames_left_in_segment == 0)
@@ -92,12 +99,13 @@ void loop()
     Serial.println(next_sanj_number);
     Serial.print("Remaining RAM: ");
     display_freeram();
+
     // CHOOSE NEXT SEGMENT
     if (in_gap)
     { // PLAY NEXT NETWORK ANIMATION
       if (animation_queued)
       {
-        if (current_animations[1]->duration <= (seconds_remaining - BLACKOUT_RADIUS) * fps)
+        if (blackout(seconds_remaining))
         { // PLAY QUEUED ANIMATION
           animation_to_animate = 1;
           animation_queued = false;
@@ -105,6 +113,7 @@ void loop()
           frames_left_in_segment = current_animations[1]->duration;
           Serial.print("Playing queued animation with duration: ");
           Serial.println(frames_left_in_segment);
+          next_sanj_number++;
         }
         else
         { // FILE STILL DOESN'T FIT YET
@@ -121,17 +130,18 @@ void loop()
           // delete current_animations[1];
           // SANJanimation *temp = new SANJanimation(next_sanj_number);
           // delete temp;
-          if (current_animations[1]->duration > 30 * fps)
+          if (current_animations[1]->duration > 30 * FPS)
           { // ANIMATION TOO LONG TO INCLUDE
             delete current_animations[1];
             current_animations[1] = nullptr;
             Serial.println("Deleting Large Animation.");
             gap(seconds_remaining);
           }
-          else if (current_animations[1]->duration >= (seconds_remaining - BLACKOUT_RADIUS) * fps)
+          else if (blackout(seconds_remaining))
           { // QUEUE LONG ANIMATION
             animation_queued = true;
-            Serial.println("Queuing Animation.");
+            Serial.print("Queuing Animation with Duration: ");
+            Serial.println(current_animations[1]->duration);
             gap(seconds_remaining);
           }
           else
@@ -175,6 +185,8 @@ void loop()
 
   if (requesting_allowed)
   {
+    Serial.print("TRYING TO FETCH ");
+    Serial.println(highest_sanj_available + 1);
     if (get_sanj_file(highest_sanj_available + 1) == 200)
       highest_sanj_available += 1;
     requesting_allowed = false;

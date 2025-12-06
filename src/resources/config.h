@@ -15,5 +15,7 @@
 
 // SCHEDULING
 #define BLACKOUT_RADIUS 60
+#define FPS 10
+#define MINIMUM_GIF_DURATION 20 // seconds
 
 #endif
